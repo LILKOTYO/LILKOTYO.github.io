@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkryao_blog=self.webpackChunkryao_blog||[]).push([[2535],{5641:e=>{e.exports=JSON.parse('{"title":"Recent posts","items":[{"title":"\u7b49\u5f85\u7855\u58eb\u751f\u6d3b\u4e2d\u7b2c\u4e00\u4e2a\u503c\u5f97\u8bb0\u5f55\u7684\u6545\u4e8b","permalink":"/blog/wait-for-a-stroy"}]}')}}]);
