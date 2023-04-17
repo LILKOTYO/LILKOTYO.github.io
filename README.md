@@ -9,3 +9,11 @@ If you are using GitHub pages for hosting, this command is a convenient way to b
 npm run build
 npm run deploy
 ```
+
+To build and deploy on another computer:
+```shell
+# install all the dependencies
+npm install
+npm run build
+npm run deploy
+```
