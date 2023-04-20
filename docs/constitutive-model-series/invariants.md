@@ -6,7 +6,7 @@ sidebar_position: 1
 > Smith, B., F. D. Goes, and T. Kim (2019, February). Analytic eigensystems for isotropic
 distortion energies. ACM Trans. Graph. 38(1).
 
-:::tips 请确保对张量缩并有所了解
+:::tip 请确保对张量缩并有所了解
 
 本构模型能量密度对位置的二阶导需要计算能量密度对形变梯度的二阶导$\frac{\partial^2\Psi}{\partial{\bf F}^2}$，这个量是一个$3\times3\times3\times3$的四维张量，所以请先确保你对张量的缩并有所了解。我的博客中给出了一个比较通俗的解释，通过一些平坦化的手段让物理模拟场景下的张量计算能够简化为矩阵和向量之间的计算，传送门：[张量计算](../math-series/tensor_stuff.md)。
 
@@ -105,10 +105,10 @@ $$
     &=\sum_{i=1}^3\frac{\partial^2\Psi}{\partial I_i^2}{\bf g}_i{\bf g}_i^T+\frac{\partial \Psi}{\partial I_i}{\bf H}_i
 \end{aligned}
 $$
-其中${\bf g}_i=\operatorname{vec}\left(\frac{\partial I_i}{\partial {\bf F}}\right)$，${\bf H}_i=\operatorname{vec}\left(\frac{\partial^2 I_i}{\partial {\bf F}^2}\right)$。首先我们先来看看平坦化的$I_2,I_3$的Hessian，$I_1$的Hessian计算比较麻烦，所以最后再讲：
+其中${\bf g}_i=\operatorname{vec}\left(\frac{\partial I_i}{\partial {\bf F}}\right)$，${\bf H}_i=\operatorname{vec}\left(\frac{\partial^2 I_i}{\partial {\bf F}^2}\right)$。首先我们先来看看平坦化的$I_2,I_3$的Hessian，$I_1$的Hessian计算比较麻烦，所以最后再讲，首先是$I_2$：
 $$
 \begin{aligned}
-    \operatorname{vec}\left(\frac{\partial^2I_2}{\partial {\bf F}^2}\right)&=\operatorname{vec}\left(\frac{\partial 2{\bf F}}{\partial {\bf F}}\right)=
+    {\bf H}_2&=\operatorname{vec}\left(\frac{\partial 2{\bf F}}{\partial {\bf F}}\right)=
 2\operatorname{vec}\left(
     \begin{bmatrix}
         \begin{bmatrix}1&0&0\\0&0&0\\0&0&0\end{bmatrix}&\begin{bmatrix}0&1&0\\0&0&0\\0&0&0\end{bmatrix}&\begin{bmatrix}0&0&1\\0&0&0\\0&0&0\end{bmatrix}\\\\
@@ -136,6 +136,24 @@ $$
     0&0&0&0&0&0&1&0&0\\
     0&0&0&0&0&0&0&1&0\\
     0&0&0&0&0&0&0&0&1\\
-\end{bmatrix}=2{\bf I}
+\end{bmatrix}=2{\bf I}_{9\times9}
 \end{aligned}
+$$
+$I_3$也直接给出结论：
+
+首先我们定义一个$\hat{\quad}$算子，它能够将一个向量转化为这样的矩阵：
+$$
+\hat{\bf x}=\begin{bmatrix}
+    0&-x_2&x_1\\
+    x_2&0&-x_0\\
+    -x_1&x_0&0
+\end{bmatrix}
+$$
+那么有：
+$$
+{\bf H}_3=\begin{bmatrix}
+    {\bf 0}_{3\times3} & -\hat{\bf f}_2 & \hat{\bf f}_1\\
+    \hat{\bf f}_2 & {\bf 0}_{3\times3} & -\hat{\bf f}_0\\
+    -\hat{\bf f}_1 & \hat{\bf f}_0 & {\bf 0}_{3\times3}
+\end{bmatrix}
 $$
