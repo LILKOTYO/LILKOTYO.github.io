@@ -30,7 +30,6 @@ $$
 $$
 因为有：
 - $||{\bf F}||_F^2=\sum_i\sum_jF_{ij}^2=\operatorname{tr}({\bf F}^T{\bf F})=\operatorname{tr}({\bf S}^T{\bf R}^T{\bf R}{\bf S})=\operatorname{tr}({\bf S}^2)$（$\bf S$为对称阵）
-<!-- - 根据[The Matrix Cookbook](https://www.math.uwaterloo.ca/~hwolkowi/matrixcookbook.pdf)，$\frac{\partial \operatorname{tr}({\bf RF}^T)}{\partial {\bf F}}={\bf R}$ -->
 - $||{\bf R}||_F^2=\operatorname{tr}({\bf RR}^T)=\operatorname{tr}({\bf I})=3$
 
 所以：
@@ -56,7 +55,15 @@ $$
 其他能量的不变式表示请见本系列的其他文章。
 
 ## 不变式的梯度
-我们用不变式来表示能量密度的主要目的就是为了简化能量密度的梯度和Hessian（相对形变梯度）的计算，对任意可以用不变式来表示的能量，他们的梯度具有这样一个通式：
+我们用不变式来表示能量密度的主要目的就是为了简化能量密度的梯度和Hessian（**相对形变梯度**，本文中在没有注明的情况下所提到的梯度和Hessian，都是相对于形变梯度，而非位置！）的计算，对任意可以用不变式来表示的能量，他们的梯度具有这样一个通式：
+
+:::tip
+
+根据[The Matrix Cookbook](https://www.math.uwaterloo.ca/~hwolkowi/matrixcookbook.pdf)，$\frac{\partial \operatorname{tr}({\bf AX}^T)}
+{\partial {\bf X}}={\bf A}$
+
+:::
+
 $$
 \frac{\partial \Psi}{\partial {\bf F}}=\frac{\partial \Psi}{\partial I_1}\frac{\partial I_1}{\partial {\bf F}}+\frac{\partial \Psi}{\partial I_2}\frac{\partial I_2}{\partial {\bf F}}+\frac{\partial \Psi}{\partial I_3}\frac{\partial I_3}{\partial {\bf F}}
 $$
@@ -87,3 +94,48 @@ $$
 $$
 
 ## 不变式的Hessian
+与梯度类似，使用不变式构造的能量密度的Hessian同样也具有一个计算通式，不同的是，此处的Hessian它是一个$3\times3\times3\times3$的四维张量，我们需要将其“平坦化”为一个矩阵后，再使用下面这个公式去计算能量密度相对于**位置**的[Hessian](../math-series/tensor_stuff.md)：
+$$
+\frac{\partial^2\Psi}{\partial {\bf x}^2} = \text{vec}\left(\frac{\partial {\bf F}}{\partial {\bf x}}\right)^T\text{vec}\left(\frac{\partial^2 \Psi}{\partial {\bf F}^2}\right)\text{vec}\left(\frac{\partial {\bf F}}{\partial {\bf x}}\right)
+$$
+中间那一项就是平坦化后的不变式的Hessian，其计算通式为：
+$$
+\begin{aligned}
+    \operatorname{vec}\left(\frac{\partial^2 \Psi}{\partial {\bf F}^2}\right)&=\frac{\partial^2\Psi}{\partial I_1^2}{\bf g}_1{\bf g}_1^T+\frac{\partial \Psi}{\partial I_1}{\bf H}_1+\frac{\partial^2\Psi}{\partial I_2^2}{\bf g}_2{\bf g}_2^T+\frac{\partial \Psi}{\partial I_2}{\bf H}_2+\frac{\partial^2\Psi}{\partial I_3^2}{\bf g}_3{\bf g}_3^T+\frac{\partial \Psi}{\partial I_3}{\bf H}_3\\
+    &=\sum_{i=1}^3\frac{\partial^2\Psi}{\partial I_i^2}{\bf g}_i{\bf g}_i^T+\frac{\partial \Psi}{\partial I_i}{\bf H}_i
+\end{aligned}
+$$
+其中${\bf g}_i=\operatorname{vec}\left(\frac{\partial I_i}{\partial {\bf F}}\right)$，${\bf H}_i=\operatorname{vec}\left(\frac{\partial^2 I_i}{\partial {\bf F}^2}\right)$。首先我们先来看看平坦化的$I_2,I_3$的Hessian，$I_1$的Hessian计算比较麻烦，所以最后再讲：
+$$
+\begin{aligned}
+    \operatorname{vec}\left(\frac{\partial^2I_2}{\partial {\bf F}^2}\right)&=\operatorname{vec}\left(\frac{\partial 2{\bf F}}{\partial {\bf F}}\right)=
+2\operatorname{vec}\left(
+    \begin{bmatrix}
+        \begin{bmatrix}1&0&0\\0&0&0\\0&0&0\end{bmatrix}&\begin{bmatrix}0&1&0\\0&0&0\\0&0&0\end{bmatrix}&\begin{bmatrix}0&0&1\\0&0&0\\0&0&0\end{bmatrix}\\\\
+        \begin{bmatrix}0&0&0\\1&0&0\\0&0&0\end{bmatrix}&\begin{bmatrix}0&0&0\\0&1&0\\0&0&0\end{bmatrix}&\begin{bmatrix}0&0&0\\0&0&1\\0&0&0\end{bmatrix}\\\\
+        \begin{bmatrix}0&0&0\\0&0&0\\1&0&0\end{bmatrix}&\begin{bmatrix}0&0&0\\0&0&0\\0&1&0\end{bmatrix}&\begin{bmatrix}0&0&0\\0&0&0\\0&0&1\end{bmatrix}
+    \end{bmatrix}
+\right)\\
+&=2\operatorname{vec}\left(
+    \begin{bmatrix}
+        [{\bf dF}_0]&[{\bf dF}_1]&[{\bf dF}_2]\\\\
+        [{\bf dF}_3]&[{\bf dF}_4]&[{\bf dF}_5]\\\\
+        [{\bf dF}_6]&[{\bf dF}_7]&[{\bf dF}_8]
+    \end{bmatrix}
+\right)\\
+&=2\begin{bmatrix}
+    \operatorname{vec}\left([{\bf dF}_0]\right) & \operatorname{vec}\left([{\bf dF}_3]\right) & \operatorname{vec}\left([{\bf dF}_6]\right)& \cdots& \operatorname{vec}\left([{\bf dF}_0]\right)& \operatorname{vec}\left([{\bf dF}_0]\right)& \operatorname{vec}\left([{\bf dF}_0]\right)
+\end{bmatrix}\\
+&=2\begin{bmatrix}
+    1&0&0&0&0&0&0&0&0\\
+    0&1&0&0&0&0&0&0&0\\
+    0&0&1&0&0&0&0&0&0\\
+    0&0&0&1&0&0&0&0&0\\
+    0&0&0&0&1&0&0&0&0\\
+    0&0&0&0&0&1&0&0&0\\
+    0&0&0&0&0&0&1&0&0\\
+    0&0&0&0&0&0&0&1&0\\
+    0&0&0&0&0&0&0&0&1\\
+\end{bmatrix}=2{\bf I}
+\end{aligned}
+$$
