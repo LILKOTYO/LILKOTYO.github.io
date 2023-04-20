@@ -8,7 +8,82 @@ distortion energies. ACM Trans. Graph. 38(1).
 
 :::tips 请确保对张量缩并有所了解
 
-本构模型能量密度对位置的二阶导需要计算能量密度对形变梯度的二阶导$\frac{\partial^2\Psi}{\partial{\bf F}^2}$，这个量是一个$3\times3\times3\times3$的四维张量，所以请先确保你对张量的缩并有所了解。我的博客中给出了一个比较通俗的解释，通过一些平坦化的手段让物理模拟场景下的张量计算能够简化为矩阵和向量之间的计算，传送门:[张量计算](../math-series/tensor_stuff.md)
+本构模型能量密度对位置的二阶导需要计算能量密度对形变梯度的二阶导$\frac{\partial^2\Psi}{\partial{\bf F}^2}$，这个量是一个$3\times3\times3\times3$的四维张量，所以请先确保你对张量的缩并有所了解。我的博客中给出了一个比较通俗的解释，通过一些平坦化的手段让物理模拟场景下的张量计算能够简化为矩阵和向量之间的计算，传送门：[张量计算](../math-series/tensor_stuff.md)。
 
 :::
 
+## 什么是不变式（invariants）？
+不变式和应变的感觉有一些像，就是一系列用来正确表征形变的物理量，那么什么东西不会带来形变呢？是平移和旋转，所以不变式就是能够在平移和旋转的时候保持不变的，由形变梯度构成的式子。
+
+下面给出论文中所提出的三个不变式：
+$$
+I_1=\operatorname*{tr}({\bf S}) \qquad I_2=\operatorname{tr}({\bf S}^2)\qquad I_3=\operatorname{det}(F)=\operatorname{det}({\bf RS})=\operatorname{det}({\bf R})\operatorname{det}({\bf S})=\operatorname{det}({\bf S})
+$$
+
+目前已知的大量本构模型的能量密度函数都可以用三个不变式进行构建，例如：
+### ARAP
+$$
+\begin{aligned}
+    \Psi_{\text{ARAP}}&=||{\bf F}-{\bf R}||^2_F\\
+    &=||{\bf F}||^2_F-2\operatorname{tr}({\bf F}^T{\bf R})+||{\bf R}||^2_F\\
+\end{aligned}
+$$
+因为有：
+- $||{\bf F}||_F^2=\sum_i\sum_jF_{ij}^2=\operatorname{tr}({\bf F}^T{\bf F})=\operatorname{tr}({\bf S}^T{\bf R}^T{\bf R}{\bf S})=\operatorname{tr}({\bf S}^2)$（$\bf S$为对称阵）
+<!-- - 根据[The Matrix Cookbook](https://www.math.uwaterloo.ca/~hwolkowi/matrixcookbook.pdf)，$\frac{\partial \operatorname{tr}({\bf RF}^T)}{\partial {\bf F}}={\bf R}$ -->
+- $||{\bf R}||_F^2=\operatorname{tr}({\bf RR}^T)=\operatorname{tr}({\bf I})=3$
+
+所以：
+$$
+\begin{aligned}
+    \Psi_{\text{ARAP}}&=||{\bf F}||^2_F-2\operatorname{tr}({\bf F}^T{\bf R})+||{\bf R}||^2_F\\
+    &=\operatorname{tr}({\bf S}^2)-2\operatorname{tr}({\bf S})+3\\
+    &=I_2-2I_1+3
+\end{aligned}
+$$
+
+###  Bonet and Wood (2008)-style Neo-Hookean
+> Bonet, J. and R. D. Wood (2008). Nonlinear continuum mechanics for finite element analysis. Cambridge university press.
+
+$$
+\Psi_{NHBW}=\frac{\mu}{2}(||{\bf F}||_F^2-3)-\mu\operatorname{log}(J)+\frac{\lambda}{2}(\operatorname{log}(J))^2
+$$
+其中$J$即为$\operatorname{det}(F)$，从而有：
+$$
+\Psi_{NHBW}=\frac{\mu}{2}(I_2-3)-\mu\operatorname{log}(I_3)+\frac{\lambda}{2}(\operatorname{log}(I_3))^2
+$$
+
+其他能量的不变式表示请见本系列的其他文章。
+
+## 不变式的梯度
+我们用不变式来表示能量密度的主要目的就是为了简化能量密度的梯度和Hessian（相对形变梯度）的计算，对任意可以用不变式来表示的能量，他们的梯度具有这样一个通式：
+$$
+\frac{\partial \Psi}{\partial {\bf F}}=\frac{\partial \Psi}{\partial I_1}\frac{\partial I_1}{\partial {\bf F}}+\frac{\partial \Psi}{\partial I_2}\frac{\partial I_2}{\partial {\bf F}}+\frac{\partial \Psi}{\partial I_3}\frac{\partial I_3}{\partial {\bf F}}
+$$
+其中$\frac{\partial \Psi}{\partial I_i}$的计算非常简单，就是单纯的标量求导，高中知识就能算。接下来要计算的就是$\frac{\partial I_i}{\partial {\bf F}}$，接下来分别计算一下：
+$$
+\begin{aligned}
+    \frac{\partial I_1}{\partial {\bf F}}=\frac{\operatorname*{tr}({\bf S})}{\partial {\bf F}}=\frac{\partial \operatorname{tr}({\bf RF}^T)}{\partial {\bf F}}={\bf R}\\
+    \frac{\partial I_2}{\partial {\bf F}}=\frac{\partial \operatorname{tr}({\bf S}^2)}{\partial {\bf F}}=\frac{\partial ||{\bf F}||_F^2}{\partial {\bf F}}=2{\bf F}
+\end{aligned}
+$$
+$I_3$的梯度计算会稍微麻烦一些，这里给出结论（TODO 找到一个好一点的参考材料）：
+在三维空间中，形变梯度$\bf F$可以表示为：
+$$
+{\bf F}=\left[
+    \begin{array}{c|c|c}
+        {\bf f}_0 & {\bf f}_1 & {\bf f}_2
+    \end{array}
+\right]
+$$
+那么有：
+$$
+\frac{\partial I_3}{\partial {\bf F}}=\frac{\partial J}{\partial {\bf F}}=
+\left[
+    \begin{array}{c|c|c}
+        {\bf f}_1\times{\bf f}_2 & {\bf f}_2\times{\bf f}_0 & {\bf f}_0\times{\bf f}_1
+    \end{array}
+\right]
+$$
+
+## 不变式的Hessian
