@@ -1,5 +1,5 @@
 ---
-sidebar_position: 2
+sidebar_position: 3
 ---
 # ARAP
 > Sorkine, O. and M. Alexa (2007). As-rigid-as-possible surface modeling. In Eurog.

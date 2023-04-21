@@ -205,21 +205,22 @@ $$
 那么$\frac{\partial {\bf R}}{\partial {\bf F}}$的特征值系统为：
 $$
 \begin{aligned}
-    \lambda_0=\frac{2}{\sigma_x+\sigma_y} \qquad {\bf Q}_0=\frac{1}{\sqrt{2}}{\bf U}\begin{bmatrix}
+    &\lambda_0=\frac{2}{\sigma_x+\sigma_y} \qquad {\bf Q}_0=\frac{1}{\sqrt{2}}{\bf U}\begin{bmatrix}
         0 & -1 & 0\\
         1 & 0 & 0\\
         0 & 0 & 0
     \end{bmatrix}{\bf V}^T\\
-    \lambda_1=\frac{2}{\sigma_y+\sigma_z} \qquad {\bf Q}_0=\frac{1}{\sqrt{2}}{\bf U}\begin{bmatrix}
+    &\lambda_1=\frac{2}{\sigma_y+\sigma_z} \qquad {\bf Q}_0=\frac{1}{\sqrt{2}}{\bf U}\begin{bmatrix}
         0 & 0 & 0\\
         0 & 0 & 1\\
         0 & -1 & 0
     \end{bmatrix}{\bf V}^T\\
-    \lambda_2=\frac{2}{\sigma_x+\sigma_z} \qquad {\bf Q}_0=\frac{1}{\sqrt{2}}{\bf U}\begin{bmatrix}
+    &\lambda_2=\frac{2}{\sigma_x+\sigma_z} \qquad {\bf Q}_0=\frac{1}{\sqrt{2}}{\bf U}\begin{bmatrix}
         0 & 0 & 1\\
         0 & 0 & 0\\
         -1 & 0 & 0
-    \end{bmatrix}{\bf V}^T
+    \end{bmatrix}{\bf V}^T\\
+    &\lambda_{3...8}=0 \qquad {\bf Q}_{3...8}=\text{subspace orthogonal to }{\bf Q}_{0,1,2}
 \end{aligned}
 $$
 那么根据特征值系统的性质就可以得到：
