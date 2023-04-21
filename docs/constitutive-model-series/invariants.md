@@ -3,7 +3,7 @@ sidebar_position: 1
 ---
 # 不变式构造本构模型并计算Hessian
 
-> Smith, B., F. D. Goes, and T. Kim (2019, February). Analytic eigensystems for isotropic
+> 参考论文：Smith, B., F. D. Goes, and T. Kim (2019, February). Analytic eigensystems for isotropic
 distortion energies. ACM Trans. Graph. 38(1).
 
 :::tip 请确保对张量缩并有所了解
@@ -157,3 +157,97 @@ $$
     -\hat{\bf f}_1 & \hat{\bf f}_0 & {\bf 0}_{3\times3}
 \end{bmatrix}
 $$
+
+OK，接下来看看$I_1$的Hessian，为什么说他很难计算呢？根据前文已经了解到了$I_1$的梯度即极分解后得到的正交矩阵${\bf R}$，那么其Hessian显而易见，就是$\frac{\partial {\bf R}}{\partial {\bf F}}$。问题就是出在这里，我们并不知道这个正交矩阵相对形变梯度的偏导是什么。在本篇参考的论文中，通过构造旋转梯度$\frac{\partial {\bf R}}{\partial {\bf F}}$这个四维张量的特征值系统来解决这个问题。
+
+### 旋转梯度的特征值系统表征
+矩阵的特征值系统具备这样的特征：
+$$
+{\bf Aq}_0=\lambda_0{\bf q}_0
+$$
+类似的，对于下面这个四维张量
+$$
+{\bf A} = \begin{bmatrix}
+    \begin{bmatrix}
+        a_0 & a_1\\
+        a_2 & a_3
+    \end{bmatrix} &
+    \begin{bmatrix}
+        a_4 & a_5\\
+        a_6 & a_7
+    \end{bmatrix} \\ \\
+    \begin{bmatrix}
+        a_8 & a_9\\
+        a_{10} & a_{11}
+    \end{bmatrix} &
+    \begin{bmatrix}
+        a_{12} & a_{13}\\
+        a_{14} & a_{15}
+    \end{bmatrix}
+\end{bmatrix}
+$$
+也存在一个特征值$\lambda_0$和特征矩阵${\bf Q}_0$使得：
+$$
+{\bf A}:{\bf Q}_0=\lambda_0{\bf Q}_0
+$$
+将这个过程平坦化：
+$$
+(\operatorname{vec}{\bf A})^T(\operatorname{vec}{\bf Q}_0)=\lambda_0\operatorname{vec}{\bf Q}_0
+$$
+那我们要怎么找到四维张量$\frac{\partial {\bf R}}{\partial {\bf F}}$的特征值和特征矩阵呢？论文中发现，如果形变梯度的奇异值分解的结果为：
+$$
+{\bf F}={\bf U\Sigma V}^T\qquad {\bf \Sigma}=\begin{bmatrix}
+    \sigma_x & 0 & 0\\
+    0 & \sigma_y & 0\\
+    0 & 0 & \sigma_z
+\end{bmatrix}
+$$
+那么$\frac{\partial {\bf R}}{\partial {\bf F}}$的特征值系统为：
+$$
+\begin{aligned}
+    \lambda_0=\frac{2}{\sigma_x+\sigma_y} \qquad {\bf Q}_0=\frac{1}{\sqrt{2}}{\bf U}\begin{bmatrix}
+        0 & -1 & 0\\
+        1 & 0 & 0\\
+        0 & 0 & 0
+    \end{bmatrix}{\bf V}^T\\
+    \lambda_1=\frac{2}{\sigma_y+\sigma_z} \qquad {\bf Q}_0=\frac{1}{\sqrt{2}}{\bf U}\begin{bmatrix}
+        0 & 0 & 0\\
+        0 & 0 & 1\\
+        0 & -1 & 0
+    \end{bmatrix}{\bf V}^T\\
+    \lambda_2=\frac{2}{\sigma_x+\sigma_z} \qquad {\bf Q}_0=\frac{1}{\sqrt{2}}{\bf U}\begin{bmatrix}
+        0 & 0 & 1\\
+        0 & 0 & 0\\
+        -1 & 0 & 0
+    \end{bmatrix}{\bf V}^T
+\end{aligned}
+$$
+那么根据特征值系统的性质就可以得到：
+$$
+\operatorname{vec}\left(\frac{\partial {\bf R}}{\partial {\bf F}}\right)=
+\sum_{i=0}^2\lambda_i\operatorname{vec}({\bf Q}_i)\operatorname{vec}({\bf Q}_i)^T
+$$
+
+## 结论
+基于上述内容，可以给出本构模型的计算通用方法如下：
+
+$$
+\begin{aligned}
+    &{\bf g}_1=\operatorname{vec}({\bf R})  &{\bf H}_1=\sum_{i=0}^2\lambda_i\operatorname{vec}({\bf Q}_i)\operatorname{vec}({\bf Q}_i)^T\\
+    &{\bf g}_2=\operatorname{vec}(2{\bf F}) &{\bf H}_2=2{\bf I}_{9\times9}\\
+    &{\bf g}_3=\left[
+    \begin{array}{c|c|c}
+        {\bf f}_1\times{\bf f}_2 & {\bf f}_2\times{\bf f}_0 & {\bf f}_0\times{\bf f}_1
+    \end{array}
+\right] &{\bf H}_3=\begin{bmatrix}
+    {\bf 0}_{3\times3} & -\hat{\bf f}_2 & \hat{\bf f}_1\\
+    \hat{\bf f}_2 & {\bf 0}_{3\times3} & -\hat{\bf f}_0\\
+    -\hat{\bf f}_1 & \hat{\bf f}_0 & {\bf 0}_{3\times3}
+\end{bmatrix}
+\end{aligned}
+$$
+
+1. 使用不变式$I_1, I_2$和$I_3$来重写能量密度函数$\Psi$
+2. 计算能量密度函数相对不变量的标量导数：$\frac{\partial \Psi}{\partial I_1}$，$\frac{\partial^2\Psi}{\partial I_1^2}$，$\frac{\partial \Psi}{\partial I_2}$，$\frac{\partial^2\Psi}{\partial I_2^2}$， $\frac{\partial \Psi}{\partial I_3}$ 和 $\frac{\partial^2\Psi}{\partial I_3^2}$
+3. 使用下面两个通式来计算能量密度的和Hessian
+    $$\operatorname{vec}\left(\frac{\partial^2 \Psi}{\partial {\bf F}^2}\right)=\sum_{i=1}^3\frac{\partial^2\Psi}{\partial I_i^2}{\bf g}_i{\bf g}_i^T+\frac{\partial \Psi}{\partial I_i}{\bf H}_i$$
