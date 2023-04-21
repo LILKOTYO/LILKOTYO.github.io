@@ -250,5 +250,5 @@ $$
 
 1. 使用不变式$I_1, I_2$和$I_3$来重写能量密度函数$\Psi$
 2. 计算能量密度函数相对不变量的标量导数：$\frac{\partial \Psi}{\partial I_1}$，$\frac{\partial^2\Psi}{\partial I_1^2}$，$\frac{\partial \Psi}{\partial I_2}$，$\frac{\partial^2\Psi}{\partial I_2^2}$， $\frac{\partial \Psi}{\partial I_3}$ 和 $\frac{\partial^2\Psi}{\partial I_3^2}$
-3. 使用下面两个通式来计算能量密度的和Hessian
+3. 使用下面两个通式来计算能量密度的和Hessian：
     $$\operatorname{vec}\left(\frac{\partial^2 \Psi}{\partial {\bf F}^2}\right)=\sum_{i=1}^3\frac{\partial^2\Psi}{\partial I_i^2}{\bf g}_i{\bf g}_i^T+\frac{\partial \Psi}{\partial I_i}{\bf H}_i$$
