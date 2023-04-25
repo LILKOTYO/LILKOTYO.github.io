@@ -134,5 +134,75 @@ void UpdateBySubStep() {}
 
 这里主要注意一点，在Solver的结算过程中，为了让求解过程更加简化和自由，我们并没有考虑各个节点之间的连接关系，所以在这个函数中很重要的一个点就是维持各个节点之间的连接关系，具体请看代码的实现。
 ```cpp
+// 首先用一个新变量将之前的求解结果全部存储下来
+vector<Transform> newJointTransforms(_dataInterface->GetJointNumber(), Transform::Identity);
+for (int jointIndex = 0; jointIndex < JointNumber; jointIndex++) {
+    newJointTransforms[jointIndex].SetTranslation(_jointPositions[jointIndex]);
+    newJointTransforms[jointIndex].SetRotation(_jointRotations[jointIndex]);
+}
 
+// 接下来开始恢复骨架节点之间的连接关系
+// 首先以关节中的链为单位，定位到链结构中的骨骼节点
+int chainNumber = _dataInterface->GetChainNumber();
+for (int chainIndex = 0; chainIndex < chainNumber; chainIndex++) {
+    int chainLength = _dataInterface->GetChainLength(chainIndex);
+    for (int chainNodeIndex = 0; chainNodeIndex < chainLength; chainNodeIndex++) {
+        int jointIndex = _dataInterface->GetChainNodeIndex(chainIndex, chainNodeIndex);
+        // 接下来找到定位到的节点的子节点（如果该节点是多个链的根节点怎么办？）
+        int childIndex = _dataInterface->GetChild(jointIndex);
+        Transform jointTransform = _dataInterface->GetJointTransform(jointIndex);
+        
+        // 如果joint已经是叶节点了，没有需要恢复的东西，开始其他链的修正
+        if (childIndex == -1)
+            continue;
+        
+        // 找到子节点的初始变换
+        Transform childTransform = _dataInterface->GetJointTransform(childIndex);
+
+        // 找到更新后，joint-child链的旋转关系
+        VECTOR vecBefore = chileTransform.GetTranslation() - jointTransform.GetTranslation();
+        VECTOR vecAfter = newJointTransform[childIndex].getTranslation() - newJointTransform[jointIndex].getTranslation();
+        QUAT parentRotation = QUAT::FindBetween(vecBefore, vecAfter);
+
+        // 更新组件空间的旋转，恢复链接关系
+        jointTransform.setRotation(parentRotation * newJointTransform[jointIndex].getRotation());
+        jointTransform.setTranslation(newJointTransform[jointIndex].GetTranslation());
+
+        // 应用更新
+        newJointTransform[jointIndex] = jointTransform;
+    }
+}
+
+// 将newJointTransform中的信息更新到Simulation中的信息里面去
+for (int jointIndex = 0; jointIndex < JointNumber; jointIndex++) {
+    Transform jointTransform = newJointTransform[jointIndex];
+    _dataInterface->SetJointTransform(jointIndex, jointTransform);
+    // 用作下一步迭代的输入
+    _dataInterface->SetInputJointTransform(jointIndex, jointTransform);
+}
+```
+
+到这里需要的功能基本都实现了，接下来使用一个`Solve()`来包装前边的内容，让求解的流程有一个更清晰的逻辑链。
+
+### 求解 `Solve()`
+基本的逻辑如下：
+```cpp
+void Solve() {
+    InitTransform();
+    ResetConstrains();
+    SolveImpl();
+
+    for (int i = 0; i < _subStep; i++) {
+        // 终于到了，alpha的更新公式
+        _alpha = (i + 1.0f) / _subStep;
+        PrepareSubStep();
+        SolveConstrains();
+        SolveCollisions();
+    }
+
+    if (_subStep > 1)
+        UpdateSubStep();
+
+    UpdateJointTransforms();
+}
 ```
