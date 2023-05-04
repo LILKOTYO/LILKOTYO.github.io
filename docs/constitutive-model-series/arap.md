@@ -2,7 +2,7 @@
 sidebar_position: 3
 ---
 # ARAP
-> Sorkine, O. and M. Alexa (2007). As-rigid-as-possible surface modeling. In Eurog.
+> 参考论文：Sorkine, O. and M. Alexa (2007). As-rigid-as-possible surface modeling. In Eurog.
 Symposium on Geometry processing, Volume 4.
 
 ARAP（As-Rigid-As-Possible）的定义和弹簧质点模型中的能量非常相似，被称作是“Most-Spring-Mass-Like in F-based World”，具体如下所示：
