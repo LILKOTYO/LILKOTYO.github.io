@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkryao_blog=self.webpackChunkryao_blog||[]).push([[2535],{5641:e=>{e.exports=JSON.parse('{"title":"Recent posts","items":[{"title":"TODO","permalink":"/blog/wait-for-a-stroy"}]}')}}]);
