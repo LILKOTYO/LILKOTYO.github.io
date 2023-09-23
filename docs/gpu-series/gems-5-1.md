@@ -48,7 +48,12 @@ $$
 为了加速碰撞运算，本文选择使用一系列粒子来表示刚体。
 
 具体做法：首先使用3D体素来近似的表示这个rigidbody（通过划分3D网格），然后在每一个体素放一个粒子。这个生成过程可以在GPU中进行加速，首先打一组平行光到刚体上，光线到刚体上的第一个交点构成了一个深度图，第二个交点构成了第二个深度图。那么很明显第一个深度图就表示刚体正面，第二个深度图表示刚体的反面。那么我们将体素作为输入，通过检测这些体素的深度，哪些体素的深度在两个深度图之间，哪些体素就在刚体内，那么就可以在这里生成一个粒子。
-![depthpeeling](./img/depth_peeling.png)
+<center>
+
+![depthpeeling](img/depth_peeling.png)
+
+</center>
+
 ### 碰撞检测
 将刚体用粒子进行表示之后，碰撞检测就被简化为了粒子之间的碰撞检测。这样有一个好处就是碰撞检测很简单，另一个好处就是碰撞检测的精度和速度都是可控的，如果要更大的精度，就可以调小粒子半径，如果要更快的速度就可以用更大的粒子半径。
 
@@ -78,3 +83,22 @@ $$
 其中$r_i$是当前粒子i相对刚体质心的相对位置。
 
 ## GPU上的刚体模拟
+<center>
+
+![GPUFramework](./img/rigidBodyFramework.jpg)
+
+</center>
+
+具体算法的流程图如上，主要包括：
+1. Computation of particle values
+2. Grid generation
+3. Collision detection and reaction
+4. Computation of momenta
+5. Computation of position and quaternion
+
+其中大部分工作都是内存排不相关的处理，暂不做过多了解。
+
+## 应用场景
+1. 用于模拟颗粒材料，力直接驱动粒子的位移
+2. 流体模拟，加速SPH的粒子邻近搜索
+3. 流固耦合
