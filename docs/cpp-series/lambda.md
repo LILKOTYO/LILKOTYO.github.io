@@ -39,6 +39,16 @@ sort(vec.begin(), vec.end(), [](const int& a, const int& b)
 ## 编译器如何处理 lambda 表达式
 
 编译器会将 lambda 表达式翻译成一个类，并且通过重载 operator() 来实现函数调用。
+
+```cpp
+auto lambda = [&]() { cout << "hello!" << endl; return 0; };
+	
+cout << typeid(lambda).name() << endl;
+
+// 输出为：
+// class <lambda_91e1f7da3da1dbc8aa6d23953317ea83>
+```
+
 例如对如下这个简单的 lambda 表达式：
 ```cpp
 auto plus = [] (int a, int b) -> int { return a + b; }

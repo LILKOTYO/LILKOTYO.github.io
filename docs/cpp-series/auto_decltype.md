@@ -23,6 +23,12 @@ auto 推导的最大优势是在拥有初始化表达式的复杂类型变量时
 const auto value = returnAConstInt();
 ```
 
+如果使用花括号 `{}` 来初始化变量，则不能使用 auto 来推导类型，否则会被推导为 `std::initializer_list<int>`，例如：
+```cpp
+auto x = {1}; // x 是 std::initializer_list<int>{1}
+auto y = (1); // y 是 int
+```
+
 auto 只是 C++ 11 类型推导的一部分，还有一部分应该使用 decltype 来体现。
 
 ## decltype
