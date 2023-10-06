@@ -95,3 +95,252 @@ public:
 为什么构造函数不能是虚函数？我们已经知道虚函数的实现则是通过对象内存中的`vptr`来实现的。而构造函数是用来实例化一个对象的，通俗来讲就是为对象内存中的值做初始化操作。那么在构造函数完成之前，`vptr`是没有值的，也就无法通过`vptr`找到作为虚函数的构造函数所在的代码区，所以构造函数只能作为普通函数存放在类所指定的代码区中。
 
 为什么析构函数推荐最好设置为虚函数？如文章开头的例子中，当我们delete(a)的时候，如果析构函数不是虚函数，那么调用的将会是基类Base的析构函数。而当继承的时候，通常派生类会在基类的基础上定义自己的成员，基类的析构函数并不知道派生类中有什么新的成员，自然也无法将它们的内存释放，所以说析构函数会被推荐写为虚函数。
+
+## 构造函数和析构函数的调用顺序
+构造函数：先基类，再子类
+
+析构函数：先子类，再基类
+
+```cpp
+class Base {
+public:
+	Base() {
+		cout << "Create Base class" << endl;
+	}
+
+	~Base() {
+		cout << "Destory Base class" << endl;
+	}
+};
+
+class Son : public Base {
+public:
+	Son() {
+		cout << "Create Son class" << endl;
+	}
+
+	~Son() {
+		cout << "Destory Son class" << endl;
+	}
+};
+
+
+int main() {
+	Son s;
+	return 0;
+}
+```
+
+输出为:
+```shell
+Create Base class
+Create Son class
+Destory Son class
+Destory Base class
+```
+
+如果将父类的构造函数和析构函数放进 private 里，那么子类的构造函数和析构函数就会出现报错：
+
+<center>
+
+![construct](img/privateconstruct.png)
+
+![destruct](img/privatedestruct.png)
+
+</center>
+
+## 三种继承方式
+当一个类派生自基类，该基类可以被继承为 public、protected 或 private 几种类型。继承类型是通过上面讲解的访问修饰符 access-specifier 来指定的。
+
+我们几乎不使用 protected 或 private 继承，通常使用 public 继承。当使用不同类型的继承时，遵循以下几个规则：
+
+- 公有继承（public）：当一个类派生自公有基类时，基类的公有成员也是派生类的公有成员，基类的保护成员也是派生类的保护成员，基类的私有成员不能直接被派生类访问，但是可以通过调用基类的公有和保护成员来访问。
+- 保护继承（protected）： 当一个类派生自保护基类时，基类的公有和保护成员将成为派生类的保护成员。
+- 私有继承（private）：当一个类派生自私有基类时，基类的公有和保护成员将成为派生类的私有成员。
+
+## 多继承
+多继承即一个子类可以有多个父类，它继承了多个父类的特性。
+
+C++ 类可以从多个类继承成员，语法如下：
+
+```cpp
+class <派生类名>:<继承方式1><基类名1>,<继承方式2><基类名2>,…
+{
+<派生类类体>
+};
+```
+
+### 多继承带来的问题
+1. 构造函数的执行顺序
+
+```cpp
+#include <iostream>
+
+class Father {
+public:
+    Father () {std::cout << "Father constructed !" << std::endl;}
+};
+
+class Mother {
+public:
+    Mother() {std::cout << "Mother constructed !" << std::endl;}
+};
+
+class Son : public Mother, public Father {
+public:
+    Son() {std::cout << "Son constructed !" << std::endl;}
+};
+
+int main()
+{
+    Son son;
+    std::cin.get();
+}
+```
+输出结果是：
+```shell
+Mother constructed !
+Father constructed !
+Son constructed !
+```
+多继承中，定义派生类对象时，构造函数的执行顺序和派生类定义时继承的顺序保持一致。
+
+2. 基类中同名变量冲突
+
+在上面的例子中，加入 Father 和 Mother 中都有一个变量 name。那么在派生类中直接使用`son.name`是会出现报错的，必须要在变量名前面加上作用域`son.Mother::name`。
+
+3. 内存布局（多态、虚函数表指针）
+对于下面的代码：
+```cpp
+#include <iostream>
+#include <string>
+
+class Father {
+public:
+    Father ()
+    {
+        std::cout << "Father constructed !" << std::endl;
+    }
+    virtual void Func() {}
+    virtual void Func2(){}
+    void Func3() {}
+};
+
+class Mother {
+public:
+    Mother()
+    {
+        std::cout << "Mother constructed !" << std::endl;
+    }
+    virtual void Func() {};
+};
+
+class Son : public Mother, public Father {
+public:
+    Son() {std::cout << "Son constructed !" << std::endl;}
+};
+
+int main()
+{
+    Father father;
+    std::cout << sizeof(father) << std::endl;
+    Mother mother;
+    std::cout << sizeof(mother) << std::endl;
+    Son son;
+    std::cout << sizeof(son) << std::endl;
+    std::cin.get();
+}
+```
+输出结果是：
+```shell
+Father constructed !
+4
+Mother constructed !
+4
+Mother constructed !
+Father constructed !
+Son constructed !
+8
+```
+可以发现，Father 对象和 Mother 对象占4字节，而派生类 Son 的对象占用了8个字节，这是因为：
+- 如果一个类中没有任何数据成员，那么它所占的内存是 1 字节
+- Father 和 Mother 对象中因为有虚函数，所以各自还有一个虚表指针（__vfptr），所以各自为4字节
+- 在多继承场景中，派生类会存在多个虚表指针，分别指向从 Father 和 Mother 中继承过来的虚函数，所以 son 对象占8个字节。
+
+4. 菱形继承
+
+两个派生类继承同一个基类，同时两个派生类又作为基本继承给同一个派生类。这种继承形如菱形，故又称为菱形继承。
+
+菱形继承的问题：菱形继承主要有数据冗余和二义性的问题。由于最底层的派生类继承了两个基类，同时这两个基类有继承的是一个基类，故而会造成最顶部基类的两次调用，会造成数据冗余及二义性问题。
+例如：
+```cpp
+class Person//人类
+{
+	public :
+	string _name ; // 姓名
+};
+class Student : public Person//学生类
+{
+protected :
+    int _num ; //学号
+};
+class Teacher : public Person//老师类
+{
+protected :
+    int _id ; // 职工编号
+};
+class Assistant : public Student, public Teacher//助理类
+{
+protected :
+    string _majorCourse ; // 主修课程
+};
+void Test ()
+{
+    // 这样会有二义性无法明确知道访问的是哪一个
+    Assistant a ;
+    a._name = "peter";
+    
+    // 需要显示指定访问哪个父类的成员可以解决二义性问题，但是数据冗余问题无法解决
+    a.Student::_name = "xxx";
+    a.Teacher::_name = "yyy";
+}
+```
+
+使用**虚拟继承**可以解决菱形继承的问题
+
+## 虚拟继承
+虚拟继承可以解决菱形继承的二义性和数据冗余的问题，其作用是在间接继承共同基类时只保留一份基类成员。
+回到上面的例子，如果 Student 和 Teacher 在继承 Person 的时候使用虚拟继承，就可以解决问题。
+
+```cpp
+class Person
+{
+public :
+    string _name ; // 姓名
+};
+class Student : virtual public Person
+{
+protected :
+    int _num ; //学号
+};
+class Teacher : virtual public Person
+{
+protected :
+    int _id ; // 职工编号
+};
+class Assistant : public Student, public Teacher
+{
+protected :
+    string _majorCourse ; // 主修课程
+};
+void Test ()
+{
+
+    Assistant a ;
+    a._name = "peter";
+}
+```
+
+在其他地方不要去使用虚拟继承。
+
+虚继承的实现原理是，编译器在派生类的对象中添加一个指向虚基类实例的指针，用于指向虚基类的实例。这样，在派生类中对于虚基类的成员访问都通过这个指针进行，从而保证了虚基类的唯一性。
