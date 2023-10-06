@@ -72,12 +72,12 @@ virtual void EvaluateComponentSpace_AnyThread(FComponentSpacePoseContext& Output
 在骨骼信息发生变换的时候引用到, 比如LOD变化时就会调用到. 主要用于刷新该节点所引用的骨骼索引。
 
 #### Update_AnyThread
-这个调用就比较频繁了, 在 TickPose 和 RefreshBoneTransform 的过程中都可能被调用
+这个调用就比较频繁了, 在 TickPose 和 RefreshBoneTransform 的过程中都可能被调用。
 
-这个函数通常用来对刷新骨骼位置所需要的变量进行计算
+这个函数通常用来对刷新骨骼位置所需要的变量进行计算。
 
 #### Evaluate_AnyThread
-用来计算并刷新 Local 空间的骨骼数据的函数, 一般我们自定义动画节点通常会重写这个函数大作文章
+用来计算并刷新 Local 空间的骨骼数据的函数, 一般我们自定义动画节点通常会重写这个函数大作文章。
 
 #### EvaluateComponentSpace_AnyThread
-同上, 但是是在组件空间的, 两者只选其一即可
+同上, 但是是在组件空间的, 两者只选其一即可。
