@@ -65,7 +65,7 @@ cout << "rref=" << rref << endl;  // 输出 3
 
 ### move语义
 如果有一个左值，我们是否可以将其转化为右值呢？可以，使用**move**语义。
-move这个词看上去像是做了资源的移动，但是没有，move其实就是一个类型转换。如产品preference所说：
+move这个词看上去像是做了资源的移动，但是没有，move其实就是一个类型转换。如 cppreference 所说：
 > In particular, std::move produces an xvalue expression that identifies its argument t. It is exactly equivalent to a static_cast to an rvalue reference type.
 
 `move(x)`产生一个将亡值(xvalue)表达式来标识其参数`x`。他就完全等同于 `static_cast<T&&>(x)`。所以说，move 并不作任何的资源转移操作。单纯的`move(x)`不会有任何的性能提升，不会有任何的资源转移。它的作用仅仅是产生一个标识x的右值表达式。因为它会返回一个右值，所以可以和一个右值引用进行绑定：
