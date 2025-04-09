@@ -1,0 +1,6 @@
+baseURL = "https://LILKOTYO.github.io/"
+languageCode = "en-us"
+title = "Ryao's Blog"
+theme = "mini"
+defaultContentLanguage = "zh"
+showToc = true
