@@ -13,3 +13,6 @@ $RECYCLE.BIN/
 # exampleSite
 exampleSite/themes
 exampleSite/public
+
+# Obsidian
+**/.obsidian/
