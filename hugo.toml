@@ -4,3 +4,6 @@ title = "Ryao's Blog"
 theme = "mini"
 defaultContentLanguage = "zh"
 showToc = true
+[caches]
+  [caches.images]
+    dir = ':cacheDir/images'
