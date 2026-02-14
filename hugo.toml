@@ -1,0 +1,54 @@
+baseURL = 'https://example.org/'
+languageCode = 'zh-cn'
+defaultContentLanguage = 'zh-cn'
+title = '我的个人博客'
+theme = 'clean'
+
+hasCJKLanguage = true
+summaryLength = 120
+
+[pagination]
+  pagerSize = 10
+
+[outputs]
+  home = ['HTML', 'RSS', 'JSON']
+
+[params]
+  author = 'Your Name'
+  description = '一个简洁的个人博客'
+  logo = '/img/logo.svg'
+
+[menu]
+  [[menu.main]]
+    name = '首页'
+    url = '/'
+    weight = 1
+  [[menu.main]]
+    name = '博文'
+    url = '/posts/'
+    weight = 2
+  [[menu.main]]
+    name = '归档'
+    url = '/archives/'
+    weight = 3
+  [[menu.main]]
+    name = '关于'
+    url = '/about/'
+    weight = 4
+
+[markup]
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true
+    [markup.goldmark.extensions.passthrough]
+      enable = true
+      [markup.goldmark.extensions.passthrough.delimiters]
+        block = [['$$', '$$'], ['\[', '\]']]
+        inline = [['$', '$'], ['\(', '\)']]
+  [markup.highlight]
+    style = 'github'
+    lineNos = false
+  [markup.tableOfContents]
+    startLevel = 2
+    endLevel = 4
+    ordered = false

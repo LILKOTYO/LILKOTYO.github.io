@@ -1,0 +1,35 @@
+{{ define "main" }}
+<div class="container-wide">
+  <div class="layout-sidebar">
+    <div class="layout-content">
+      <h1 class="section-title">{{ .Title }}</h1>
+      <ul class="post-list">
+        {{ range .Pages }}
+        <li class="post-item">
+          <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+          <div class="post-meta">{{ .Date.Format "2006-01-02" }}</div>
+          {{ if .Summary }}
+          <div class="post-summary">{{ .Summary }}</div>
+          {{ end }}
+        </li>
+        {{ end }}
+      </ul>
+      {{ template "_internal/pagination.html" . }}
+    </div>
+    {{ if $.Site.Taxonomies.tags }}
+    <aside class="tags-sidebar">
+      <div class="sidebar-sticky">
+        <h3 class="sidebar-title">标签</h3>
+        <div class="tag-cloud">
+          {{ range $.Site.Taxonomies.tags.Alphabetical }}
+            <a href="{{ "/tags/" | relURL }}{{ .Name | urlize }}/" class="tag-item">
+              {{ .Name }}<span class="tag-count">{{ .Count }}</span>
+            </a>
+          {{ end }}
+        </div>
+      </div>
+    </aside>
+    {{ end }}
+  </div>
+</div>
+{{ end }}

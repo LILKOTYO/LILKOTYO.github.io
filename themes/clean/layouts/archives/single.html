@@ -1,0 +1,21 @@
+{{ define "main" }}
+<div class="container">
+  <h1 class="section-title">归档</h1>
+  <p class="archive-summary">共 {{ len (where .Site.RegularPages "Section" "posts") }} 篇文章</p>
+  {{ $pages := where .Site.RegularPages "Section" "posts" }}
+  {{ $grouped := $pages.GroupByDate "2006" }}
+  {{ range $grouped }}
+  <div class="archive-group">
+    <h2 class="archive-year">{{ .Key }}</h2>
+    <ul class="archive-list">
+      {{ range .Pages }}
+      <li class="archive-item">
+        <span class="archive-date">{{ .Date.Format "01-02" }}</span>
+        <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+      </li>
+      {{ end }}
+    </ul>
+  </div>
+  {{ end }}
+</div>
+{{ end }}

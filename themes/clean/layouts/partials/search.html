@@ -1,0 +1,91 @@
+<div id="search-overlay" class="search-overlay" style="display:none;">
+  <div class="search-container">
+    <div class="search-header">
+      <input type="text" id="search-input" placeholder="搜索文章标题、标签、内容..." autocomplete="off">
+      <button class="search-close" onclick="closeSearch()" aria-label="关闭">&times;</button>
+    </div>
+    <ul id="search-results" class="search-results"></ul>
+    <div id="search-empty" class="search-empty" style="display:none;">没有找到相关文章</div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0/dist/fuse.min.js"></script>
+<script>
+(function() {
+  let fuse = null;
+  let data = null;
+
+  function loadIndex() {
+    if (data) return Promise.resolve();
+    return fetch('{{ "index.json" | relURL }}')
+      .then(r => r.json())
+      .then(d => {
+        data = d;
+        fuse = new Fuse(d, {
+          keys: [
+            { name: 'title', weight: 0.5 },
+            { name: 'tags', weight: 0.3 },
+            { name: 'summary', weight: 0.2 }
+          ],
+          threshold: 0.3,
+          includeMatches: true
+        });
+      });
+  }
+
+  window.openSearch = function() {
+    const overlay = document.getElementById('search-overlay');
+    overlay.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    const input = document.getElementById('search-input');
+    input.value = '';
+    document.getElementById('search-results').innerHTML = '';
+    document.getElementById('search-empty').style.display = 'none';
+    loadIndex().then(() => input.focus());
+  };
+
+  window.closeSearch = function() {
+    document.getElementById('search-overlay').style.display = 'none';
+    document.body.style.overflow = '';
+  };
+
+  document.addEventListener('keydown', function(e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+      e.preventDefault();
+      openSearch();
+    }
+    if (e.key === 'Escape') closeSearch();
+  });
+
+  document.addEventListener('input', function(e) {
+    if (e.target.id !== 'search-input' || !fuse) return;
+    const query = e.target.value.trim();
+    const list = document.getElementById('search-results');
+    const empty = document.getElementById('search-empty');
+
+    if (!query) {
+      list.innerHTML = '';
+      empty.style.display = 'none';
+      return;
+    }
+
+    const results = fuse.search(query).slice(0, 10);
+    if (results.length === 0) {
+      list.innerHTML = '';
+      empty.style.display = 'block';
+      return;
+    }
+
+    empty.style.display = 'none';
+    list.innerHTML = results.map(r => {
+      const item = r.item;
+      const tags = item.tags ? item.tags.map(t => '<span class="search-tag">' + t + '</span>').join('') : '';
+      return '<li><a href="' + item.url + '">' +
+        '<div class="search-result-title">' + item.title + '</div>' +
+        '<div class="search-result-meta">' + item.date + (tags ? ' · ' + tags : '') + '</div>' +
+        (item.summary ? '<div class="search-result-summary">' + item.summary + '</div>' : '') +
+        '</a></li>';
+    }).join('');
+  });
+})();
+</script>

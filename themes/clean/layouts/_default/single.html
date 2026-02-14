@@ -1,0 +1,32 @@
+{{ define "main" }}
+<div class="container-wide">
+  <div class="layout-toc">
+    <article class="layout-content">
+      <div class="post-header">
+        <h1>{{ .Title }}</h1>
+        <div class="post-meta">
+          发布于 {{ .Date.Format "2006-01-02" }}
+          {{ if .Params.tags }} · 标签:
+            {{ range .Params.tags }}
+              <a href="{{ "/tags/" | relURL }}{{ . | urlize }}/" class="tag-link">{{ . }}</a>
+            {{ end }}
+          {{ end }}
+        </div>
+      </div>
+      <div class="post-content">
+        {{ .Content }}
+      </div>
+    </article>
+    {{ if .TableOfContents }}
+    <aside class="toc-sidebar">
+      <div class="toc-sticky">
+        <h3 class="toc-title">目录</h3>
+        <div class="toc-content">
+          {{ .TableOfContents }}
+        </div>
+      </div>
+    </aside>
+    {{ end }}
+  </div>
+</div>
+{{ end }}

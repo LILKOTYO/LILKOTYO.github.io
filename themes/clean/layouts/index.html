@@ -1,0 +1,21 @@
+{{ define "main" }}
+<div class="container">
+  <div class="home-intro">
+    <h1>欢迎来到 {{ .Site.Title }}</h1>
+    <p>{{ .Site.Params.description }}</p>
+  </div>
+
+  <h2 class="section-title">最新博文</h2>
+  <ul class="post-list">
+    {{ range first 10 (where .Site.RegularPages "Section" "posts") }}
+    <li class="post-item">
+      <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+      <div class="post-meta">{{ .Date.Format "2006-01-02" }}</div>
+      {{ if .Summary }}
+      <div class="post-summary">{{ .Summary }}</div>
+      {{ end }}
+    </li>
+    {{ end }}
+  </ul>
+</div>
+{{ end }}

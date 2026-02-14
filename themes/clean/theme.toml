@@ -1,0 +1,9 @@
+name = "Clean"
+license = "MIT"
+licenselink = ""
+description = "A minimal and clean Hugo theme"
+tags = ["minimal", "clean", "blog", "chinese"]
+min_version = "0.112.0"
+
+[author]
+  name = "Blog Owner"
