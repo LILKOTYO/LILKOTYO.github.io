@@ -1,0 +1,19 @@
+{{- $url := .Destination -}}
+{{- $isExternal := or (hasPrefix $url "http://") (hasPrefix $url "https://") (hasPrefix $url "//") -}}
+{{- if and (not $isExternal) (or (strings.HasSuffix $url ".md") (strings.Contains $url ".md#")) -}}
+  {{- $fragment := "" -}}
+  {{- $path := $url -}}
+  {{- if strings.Contains $url "#" -}}
+    {{- $parts := split $url "#" -}}
+    {{- $path = index $parts 0 -}}
+    {{- $fragment = printf "#%s" (index $parts 1) -}}
+  {{- end -}}
+  {{- $path = strings.TrimSuffix ".md" $path -}}
+  {{- with $.Page.GetPage $path -}}
+    {{- $url = printf "%s%s" .RelPermalink $fragment -}}
+  {{- end -}}
+{{- end -}}
+<a href="{{ $url | safeURL }}"
+  {{- with .Title }} title="{{ . }}"{{ end -}}
+  {{- if $isExternal }} target="_blank" rel="noopener noreferrer"{{ end -}}
+>{{ .Text | safeHTML }}</a>
