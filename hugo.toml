@@ -1,7 +1,7 @@
 baseURL = 'https://LILKOTYO.github.io/'
 languageCode = 'zh-cn'
 defaultContentLanguage = 'zh-cn'
-title = '我的个人博客'
+title = "Ryao's Space"
 theme = 'clean'
 
 hasCJKLanguage = true
@@ -14,9 +14,9 @@ summaryLength = 120
   home = ['HTML', 'RSS', 'JSON']
 
 [params]
-  author = 'Your Name'
-  description = '一个简洁的个人博客'
-  logo = '/img/logo.svg'
+  author = 'Ryao'
+  description = '写点东西'
+  logo = '/img/ryao.svg'
 
 [menu]
   [[menu.main]]
